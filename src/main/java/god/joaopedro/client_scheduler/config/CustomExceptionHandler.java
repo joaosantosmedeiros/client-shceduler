@@ -1,5 +1,6 @@
 package god.joaopedro.client_scheduler.config;
 
+import god.joaopedro.client_scheduler.exceptions.InvalidFieldException;
 import god.joaopedro.client_scheduler.utils.ValidationErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,16 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Object> handle (IllegalArgumentException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    @ExceptionHandler(InvalidFieldException.class)
+    public ResponseEntity<Object> handle (InvalidFieldException exception) {
+        ValidationErrorMessage errorMessage = new ValidationErrorMessage();
+        errorMessage.addError(exception.getField(), exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handle (Exception exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 }
