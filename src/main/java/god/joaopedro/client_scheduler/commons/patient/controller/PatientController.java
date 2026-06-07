@@ -31,6 +31,11 @@ public class PatientController {
                 .body(service.createPatient(dto));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<Patient> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.getById(id));
+    }
+
     @PutMapping("{id}")
     public ResponseEntity<Patient> putById(@PathVariable UUID id, @RequestBody @Valid PatientDTO dto) {
         return ResponseEntity.ok(service.updatePatient(id, dto));
