@@ -49,4 +49,8 @@ public class Patient {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
+
+    public Patient(UUID id) {
+        this.id = id;
+    }
 }

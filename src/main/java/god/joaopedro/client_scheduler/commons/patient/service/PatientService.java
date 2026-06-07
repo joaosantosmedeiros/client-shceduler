@@ -44,12 +44,13 @@ public class PatientService {
     }
 
     public Patient updatePatient(UUID id, PatientDTO dto) {
-        Patient patient = repository.findById(id).
-                orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
 
-        if(dto == null){
+        if(id == null || dto == null){
             throw new IllegalArgumentException("Patient must not be null.");
         }
+
+        Patient patient = repository.findById(id).
+                orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
 
         if(!CpfValidator.validate(dto.cpf()))
             throw new InvalidFieldException(Constants.CPF, Constants.INVALID_OBJECT);
