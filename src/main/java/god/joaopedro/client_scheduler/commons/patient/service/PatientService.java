@@ -10,7 +10,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -19,26 +21,50 @@ public class PatientService {
     private final PatientRepository repository;
 
     @Transactional
-    public Patient createPatient(PatientDTO patientDTO) {
-        if(patientDTO == null){
+    public Patient createPatient(PatientDTO dto) {
+        if(dto == null){
             throw new IllegalArgumentException("Patient must not be null.");
         }
 
-        if(!CpfValidator.validate(patientDTO.cpf()))
-            throw new InvalidFieldException(Constants.CPF, Constants.INVALID_MESSAGE);
+        if(!CpfValidator.validate(dto.cpf()))
+            throw new InvalidFieldException(Constants.CPF, Constants.INVALID_OBJECT);
 
-        if(repository.findByCpf(patientDTO.cpf()).isPresent())
+        if(repository.findByCpf(dto.cpf()).isPresent())
             throw new InvalidFieldException(Constants.CPF, Constants.IN_USE);
 
-        return repository.save(new Patient(patientDTO));
+        return repository.save(new Patient(dto));
     }
 
-    public Patient getByCpf(String cpf) {
-        return repository.findByCpf(cpf).orElse(null);
+    public Patient getById(UUID id) {
+        return repository.findById(id).orElse(null);
     }
 
     public List<Patient> listPatients() {
         return repository.findAll();
+    }
+
+    public Patient updatePatient(UUID id, PatientDTO dto) {
+        Patient patient = repository.findById(id).
+                orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
+
+        if(dto == null){
+            throw new IllegalArgumentException("Patient must not be null.");
+        }
+
+        if(!CpfValidator.validate(dto.cpf()))
+            throw new InvalidFieldException(Constants.CPF, Constants.INVALID_OBJECT);
+
+        var cpfIsInUse = repository.findByCpf(dto.cpf());
+        if(cpfIsInUse.isPresent() && !cpfIsInUse.get().getId().equals(id))
+            throw new InvalidFieldException(Constants.CPF, Constants.IN_USE);
+
+        patient.setName(dto.name());
+        patient.setCpf(dto.cpf());
+        patient.setPhone(dto.phone());
+        patient.setBirthDate(dto.birthDate());
+        patient.setUpdatedAt(LocalDateTime.now());
+
+        return repository.save(patient);
     }
 
 }

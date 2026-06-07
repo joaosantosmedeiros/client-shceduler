@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,10 +31,8 @@ public class PatientController {
                 .body(service.createPatient(dto));
     }
 
-    @GetMapping("{email}")
-    public ResponseEntity<Patient> getByEmail(@PathVariable String email) {
-        Patient patient = service.getByCpf(email);
-        if(patient == null) return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-        return ResponseEntity.ok(patient);
+    @PutMapping("{id}")
+    public ResponseEntity<Patient> putById(@PathVariable UUID id, @RequestBody @Valid PatientDTO dto) {
+        return ResponseEntity.ok(service.updatePatient(id, dto));
     }
 }
