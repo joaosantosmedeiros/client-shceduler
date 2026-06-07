@@ -18,8 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PatientServiceTest {
@@ -124,5 +123,31 @@ class PatientServiceTest {
             service.updatePatient(id, createDTO());
             verify(repository).save(any());
         });
+    }
+
+    @Test public void itShouldThrowIfPatientIsNotFoundOnDelete() {
+        assertThrows(InvalidFieldException.class, () -> {
+           service.deletePatient(this.id);
+        });
+    }
+
+    @Test public void itShouldNotUpdateIfPatientIsAlreadyInactiveOnDelete() {
+        Patient p = new Patient();
+        p.setIsActive(Boolean.FALSE);
+        when(repository.findById(any())).thenReturn(Optional.of(p));
+
+        service.deletePatient(this.id);
+
+        verify(repository, times(0)).save(any());
+    }
+
+    @Test public void itShouldUpdateIfPatientIsAlreadyInactiveOnDelete() {
+        Patient p = new Patient();
+        p.setIsActive(Boolean.TRUE);
+        when(repository.findById(any())).thenReturn(Optional.of(p));
+
+        service.deletePatient(this.id);
+
+        verify(repository).save(any());
     }
 }
