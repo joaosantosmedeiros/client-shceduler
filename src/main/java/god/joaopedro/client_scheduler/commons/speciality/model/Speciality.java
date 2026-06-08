@@ -16,6 +16,10 @@ import java.util.UUID;
 @Setter
 public class Speciality {
 
+    public Speciality(UUID id) {
+        this.id = id;
+    }
+
     public Speciality(SpecialityDTO dto) {
         this.name = dto.name();
         this.createdAt = LocalDateTime.now();

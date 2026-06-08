@@ -31,4 +31,9 @@ public class SpecialityController {
     public Speciality createSpeciality(@RequestBody @Valid SpecialityDTO dto){
         return service.createSpeciality(dto);
     }
+
+    @PutMapping("{id}")
+    public Speciality putById(@PathVariable UUID id, @RequestBody @Valid SpecialityDTO dto) {
+        return service.updateSpeciality(id, dto);
+    }
 }

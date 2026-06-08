@@ -8,6 +8,7 @@ import god.joaopedro.client_scheduler.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,5 +34,24 @@ public class SpecialityService {
             throw new InvalidFieldException(Constants.NAME, Constants.IN_USE);
 
         return repository.save(new Speciality(dto));
+    }
+
+    public Speciality updateSpeciality(UUID id, SpecialityDTO dto) {
+        if(dto == null)
+            throw new IllegalArgumentException("especialidade não deve ser nula");
+
+        Speciality speciality = repository.findById(id).orElseThrow(() ->
+                new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
+
+        if(!speciality.getName().equalsIgnoreCase(dto.name())){
+            if(repository.findByName(dto.name()).isPresent())
+                throw new InvalidFieldException(Constants.NAME, Constants.IN_USE);
+
+            speciality.setName(dto.name());
+            speciality.setUpdatedAt(LocalDateTime.now());
+            speciality = repository.save(speciality);
+        }
+
+        return speciality;
     }
 }
