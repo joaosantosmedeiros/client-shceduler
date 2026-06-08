@@ -27,9 +27,10 @@ class SpecialityServiceTest {
 
     private final SpecialityDTO dto = new SpecialityDTO("Name");
 
-    private Speciality makeSpeciality(UUID id, String name) {
+    private Speciality makeSpeciality(UUID id, String name, Boolean isActive) {
         Speciality s = new Speciality(id);
         s.setName(name);
+        s.setIsActive(isActive);
         return s;
     }
 
@@ -62,8 +63,8 @@ class SpecialityServiceTest {
     }
 
     @Test public void itShouldThrowIfNameIsInUseOnUpdate() {
-        when(repository.findByName(any())).thenReturn(Optional.of(makeSpeciality(UUID.randomUUID(), "name")));
-        when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(UUID.randomUUID(), "another_name")));
+        when(repository.findByName(any())).thenReturn(Optional.of(makeSpeciality(UUID.randomUUID(), "name", Boolean.TRUE)));
+        when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(UUID.randomUUID(), "another_name", Boolean.TRUE)));
 
         Exception e = assertThrows(InvalidFieldException.class, () -> service.updateSpeciality(UUID.randomUUID(), dto));
         assertTrue(e.getMessage().contains(Constants.IN_USE));
@@ -85,5 +86,30 @@ class SpecialityServiceTest {
         assertDoesNotThrow(() -> service.updateSpeciality(UUID.randomUUID(), dto));
 
         verify(repository, times(1)).save(any());
+    }
+
+    @Test public void itShouldThrowIfNoSpecialityIsFoundOnDelete() {
+        when(repository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(InvalidFieldException.class, () -> service.deleteSpeciality(UUID.randomUUID()));
+    }
+
+    @Test public void itShouldNotCallSaveIfNoChangesAreMadeOnDelete() {
+        UUID id = UUID.randomUUID();
+        when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(id, "name", Boolean.FALSE)));
+
+        assertDoesNotThrow(() -> service.deleteSpeciality(id));
+
+        verify(repository, times(0)).save(any());
+
+    }
+
+    @Test public void itShouldCallSaveIfChangesAreMadeOnDelete() {
+        UUID id = UUID.randomUUID();
+        when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(id, "name", Boolean.TRUE)));
+
+        assertDoesNotThrow(() -> service.deleteSpeciality(id));
+
+        verify(repository).save(any());
     }
 }

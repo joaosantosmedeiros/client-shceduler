@@ -54,4 +54,15 @@ public class SpecialityService {
 
         return speciality;
     }
+
+    public void deleteSpeciality(UUID id) {
+        Speciality speciality = repository.findById(id).orElseThrow(() ->
+            new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
+
+        if(speciality.getIsActive()) {
+            speciality.setIsActive(Boolean.FALSE);
+            speciality.setUpdatedAt(LocalDateTime.now());
+            repository.save(speciality);
+        }
+    }
 }
