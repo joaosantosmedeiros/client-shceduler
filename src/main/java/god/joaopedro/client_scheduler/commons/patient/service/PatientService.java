@@ -23,7 +23,7 @@ public class PatientService {
     @Transactional
     public Patient createPatient(PatientDTO dto) {
         if(dto == null){
-            throw new IllegalArgumentException("Patient must not be null.");
+            throw new IllegalArgumentException("paciente não deve ser nulo");
         }
 
         if(!CpfValidator.validate(dto.cpf()))
