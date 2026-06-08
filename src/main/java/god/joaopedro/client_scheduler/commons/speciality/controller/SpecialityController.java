@@ -5,10 +5,10 @@ import god.joaopedro.client_scheduler.commons.speciality.model.dto.SpecialityDTO
 import god.joaopedro.client_scheduler.commons.speciality.service.SpecialityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("speciality")
@@ -16,6 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class SpecialityController {
 
     private final SpecialityService service;
+
+    @GetMapping
+    public List<Speciality> listSpecialities() {
+        return service.findAll();
+    }
+
+    @GetMapping("{id}")
+    public Speciality getById(@PathVariable UUID id) {
+        return service.getById(id);
+    }
 
     @PostMapping
     public Speciality createSpeciality(@RequestBody @Valid SpecialityDTO dto){
