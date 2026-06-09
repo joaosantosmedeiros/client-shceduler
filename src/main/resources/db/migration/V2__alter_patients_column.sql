@@ -1,2 +1,2 @@
 ALTER TABLE Patient DROP COLUMN email;
-ALTER TABLE Patient ADD COLUMN cpf char(11);
+ALTER TABLE Patient ADD COLUMN cpf char(11) NOT NULL UNIQUE;
