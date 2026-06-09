@@ -46,7 +46,7 @@ public class PatientService {
     public Patient update(UUID id, PatientDTO dto) {
 
         if(id == null || dto == null){
-            throw new IllegalArgumentException("Patient must not be null.");
+            throw new IllegalArgumentException("paciente não deve ser nulo");
         }
 
         Patient patient = repository.findById(id).

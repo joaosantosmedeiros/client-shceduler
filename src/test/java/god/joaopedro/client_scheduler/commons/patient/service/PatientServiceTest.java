@@ -5,6 +5,7 @@ import god.joaopedro.client_scheduler.commons.patient.model.dto.PatientDTO;
 import god.joaopedro.client_scheduler.commons.patient.repository.PatientRepository;
 import god.joaopedro.client_scheduler.exceptions.InvalidFieldException;
 import god.joaopedro.client_scheduler.utils.Constants;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,104 +27,115 @@ class PatientServiceTest {
     @InjectMocks private PatientService service;
 
     private final UUID id = UUID.randomUUID();
-    private String cpf = "11339213451";
+    private String cpf = "70431492077";
 
     private PatientDTO createDTO() {
         return new PatientDTO(null, this.cpf, null, null);
     }
 
+    @Nested
+    class OnCreate{
 
-    @Test public void itShouldThrowIfNullDtoIsPassedOnCreation() {
-        assertThrows(IllegalArgumentException.class, () -> service.create(null));
+        @Test public void itShouldThrowIfNullDtoIsPassed() {
+            assertThrows(IllegalArgumentException.class, () -> service.create(null));
+        }
+
+        @Test public void itShouldThrowIfInvalidCPFIsPassed() {
+            cpf = "70431492078";
+
+            Exception e = assertThrows(InvalidFieldException.class, () -> service.create(createDTO()));
+
+            assertTrue(e.getMessage().contains(Constants.INVALID_OBJECT));
+        }
+
+        @Test public void itShouldThrowIfUsedCPFIsPassed() {
+            when(repository.findByCpf(cpf)).thenReturn(Optional.of(new Patient()));
+
+            Exception e = assertThrows(InvalidFieldException.class, () -> service.create(createDTO()));
+
+            assertTrue(e.getMessage().contains(Constants.IN_USE));
+        }
+
+        @Test public void itShouldCreateSuccessfully() {
+            assertDoesNotThrow(() -> {
+                service.create(createDTO());
+            });
+        }
     }
 
-    @Test public void itShouldThrowIfInvalidCPFIsPassedOnCreation() {
-        this.cpf = "11339213452";
+    @Nested
+    class OnUpdate{
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.create(createDTO()));
+        @Test public void itShouldThrowIfIdIsInvalid() {
+            when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertTrue(e.getMessage().contains(Constants.INVALID_OBJECT));
+            Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
+            assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
+        }
+
+        @Test public void itShouldThrowIfPassedDTOIsNull() {
+            assertThrows(IllegalArgumentException.class, () -> service.update(id, null));
+        }
+
+        @Test public void itShouldThrowIfPatientIsNotFound() {
+            when(repository.findById(any())).thenReturn(Optional.empty());
+
+            Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
+            assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
+        }
+
+        @Test public void itShouldThrowIfCpfIsInvalid() {
+            when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
+            cpf = "12345678910123";
+
+            Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
+            assertTrue(e.getMessage().contains(Constants.INVALID_OBJECT));
+        }
+
+        @Test public void itShouldThrowIfCpfIsInUse() {
+            when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
+            when(repository.findByCpf(cpf)).thenReturn(Optional.of(new Patient(UUID.randomUUID())));
+
+            Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
+            assertTrue(e.getMessage().contains(Constants.IN_USE));
+        }
+
+        @Test public void itShouldCallRepositorySaveOnSuccess() {
+            when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
+            when(repository.findByCpf(cpf)).thenReturn(Optional.empty());
+
+            assertDoesNotThrow(() -> {
+                service.update(id, createDTO());
+                verify(repository).save(any());
+            });
+        }
     }
 
-    @Test public void itShouldThrowIfUsedCPFIsPassedOnCreation() {
-        when(repository.findByCpf(this.cpf)).thenReturn(Optional.of(new Patient()));
+    @Nested
+    class OnDelete{
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.create(createDTO()));
+        @Test public void itShouldThrowIfPatientIsNotFound() {
+            assertThrows(InvalidFieldException.class, () -> service.delete(id));
+        }
 
-        assertTrue(e.getMessage().contains(Constants.IN_USE));
-    }
+        @Test public void itShouldNotUpdateIfPatientIsAlreadyInactive() {
+            Patient p = new Patient();
+            p.setIsActive(Boolean.FALSE);
+            when(repository.findById(any())).thenReturn(Optional.of(p));
 
-    @Test public void itShouldCreateSuccessfully() {
-        assertDoesNotThrow(() -> {
-            service.create(createDTO());
-        });
-    }
+            service.delete(id);
 
-    @Test public void itShouldThrowIfIdIsInvalidOnUpdate() {
-        when(repository.findById(id)).thenReturn(Optional.empty());
+            verify(repository, times(0)).save(any());
+        }
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
-        assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
-    }
+        @Test public void itShouldUpdateIfPatientIsAlreadyInactive() {
+            Patient p = new Patient();
+            p.setIsActive(Boolean.TRUE);
+            when(repository.findById(any())).thenReturn(Optional.of(p));
 
-    @Test public void itShouldThrowIfPassedDTOIsNullOnUpdate() {
-        assertThrows(IllegalArgumentException.class, () -> service.update(id, null));
-    }
+            service.delete(id);
 
-    @Test public void itShouldThrowIfPatientIsNotFound() {
-        when(repository.findById(any())).thenReturn(Optional.empty());
-
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
-        assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
-    }
-
-    @Test public void itShouldThrowIfCpfIsInvalidOnUpdate() {
-        when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
-        this.cpf = "12345678910123";
-
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
-        assertTrue(e.getMessage().contains(Constants.INVALID_OBJECT));
-    }
-
-    @Test public void itShouldThrowIfCpfIsInUseOnUpdate() {
-        when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
-        when(repository.findByCpf(this.cpf)).thenReturn(Optional.of(new Patient(UUID.randomUUID())));
-
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
-        assertTrue(e.getMessage().contains(Constants.IN_USE));
-    }
-
-    @Test public void itShouldCallRepositorySaveOnUpdateSuccess() {
-        when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
-        when(repository.findByCpf(this.cpf)).thenReturn(Optional.empty());
-
-        assertDoesNotThrow(() -> {
-            service.update(id, createDTO());
             verify(repository).save(any());
-        });
-    }
-
-    @Test public void itShouldThrowIfPatientIsNotFoundOnDelete() {
-        assertThrows(InvalidFieldException.class, () -> service.delete(this.id));
-    }
-
-    @Test public void itShouldNotUpdateIfPatientIsAlreadyInactiveOnDelete() {
-        Patient p = new Patient();
-        p.setIsActive(Boolean.FALSE);
-        when(repository.findById(any())).thenReturn(Optional.of(p));
-
-        service.delete(this.id);
-
-        verify(repository, times(0)).save(any());
-    }
-
-    @Test public void itShouldUpdateIfPatientIsAlreadyInactiveOnDelete() {
-        Patient p = new Patient();
-        p.setIsActive(Boolean.TRUE);
-        when(repository.findById(any())).thenReturn(Optional.of(p));
-
-        service.delete(this.id);
-
-        verify(repository).save(any());
+        }
     }
 }
