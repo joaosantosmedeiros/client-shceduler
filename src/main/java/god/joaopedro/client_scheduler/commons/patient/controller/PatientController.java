@@ -21,29 +21,29 @@ public class PatientController {
 
     @GetMapping
     public ResponseEntity<List<Patient>> listPatients() {
-        return ResponseEntity.ok(service.listPatients());
+        return ResponseEntity.ok(service.list());
     }
 
     @PostMapping
     public ResponseEntity<Patient> createPatient(@RequestBody @Valid PatientDTO dto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(service.createPatient(dto));
+                .body(service.create(dto));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Patient> getById(@PathVariable UUID id) {
+    public ResponseEntity<Patient> getPatient(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Patient> putById(@PathVariable UUID id, @RequestBody @Valid PatientDTO dto) {
-        return ResponseEntity.ok(service.updatePatient(id, dto));
+    public ResponseEntity<Patient> updatePatient(@PathVariable UUID id, @RequestBody @Valid PatientDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteById(@PathVariable UUID id) {
-        service.deletePatient(id);
+    public ResponseEntity<?> deletePatient  (@PathVariable UUID id) {
+        service.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }

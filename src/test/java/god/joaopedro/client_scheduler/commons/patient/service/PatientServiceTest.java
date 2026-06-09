@@ -34,13 +34,13 @@ class PatientServiceTest {
 
 
     @Test public void itShouldThrowIfNullDtoIsPassedOnCreation() {
-        assertThrows(IllegalArgumentException.class, () -> service.createPatient(null));
+        assertThrows(IllegalArgumentException.class, () -> service.create(null));
     }
 
     @Test public void itShouldThrowIfInvalidCPFIsPassedOnCreation() {
         this.cpf = "11339213452";
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.createPatient(createDTO()));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.create(createDTO()));
 
         assertTrue(e.getMessage().contains(Constants.INVALID_OBJECT));
     }
@@ -48,32 +48,32 @@ class PatientServiceTest {
     @Test public void itShouldThrowIfUsedCPFIsPassedOnCreation() {
         when(repository.findByCpf(this.cpf)).thenReturn(Optional.of(new Patient()));
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.createPatient(createDTO()));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.create(createDTO()));
 
         assertTrue(e.getMessage().contains(Constants.IN_USE));
     }
 
     @Test public void itShouldCreateSuccessfully() {
         assertDoesNotThrow(() -> {
-            service.createPatient(createDTO());
+            service.create(createDTO());
         });
     }
 
     @Test public void itShouldThrowIfIdIsInvalidOnUpdate() {
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.updatePatient(id, createDTO()));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
         assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
     }
 
     @Test public void itShouldThrowIfPassedDTOIsNullOnUpdate() {
-        assertThrows(IllegalArgumentException.class, () -> service.updatePatient(id, null));
+        assertThrows(IllegalArgumentException.class, () -> service.update(id, null));
     }
 
     @Test public void itShouldThrowIfPatientIsNotFound() {
         when(repository.findById(any())).thenReturn(Optional.empty());
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.updatePatient(id, createDTO()));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
         assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
     }
 
@@ -81,7 +81,7 @@ class PatientServiceTest {
         when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
         this.cpf = "12345678910123";
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.updatePatient(id, createDTO()));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
         assertTrue(e.getMessage().contains(Constants.INVALID_OBJECT));
     }
 
@@ -89,7 +89,7 @@ class PatientServiceTest {
         when(repository.findById(any())).thenReturn(Optional.of(new Patient()));
         when(repository.findByCpf(this.cpf)).thenReturn(Optional.of(new Patient(UUID.randomUUID())));
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.updatePatient(id, createDTO()));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
         assertTrue(e.getMessage().contains(Constants.IN_USE));
     }
 
@@ -98,13 +98,13 @@ class PatientServiceTest {
         when(repository.findByCpf(this.cpf)).thenReturn(Optional.empty());
 
         assertDoesNotThrow(() -> {
-            service.updatePatient(id, createDTO());
+            service.update(id, createDTO());
             verify(repository).save(any());
         });
     }
 
     @Test public void itShouldThrowIfPatientIsNotFoundOnDelete() {
-        assertThrows(InvalidFieldException.class, () -> service.deletePatient(this.id));
+        assertThrows(InvalidFieldException.class, () -> service.delete(this.id));
     }
 
     @Test public void itShouldNotUpdateIfPatientIsAlreadyInactiveOnDelete() {
@@ -112,7 +112,7 @@ class PatientServiceTest {
         p.setIsActive(Boolean.FALSE);
         when(repository.findById(any())).thenReturn(Optional.of(p));
 
-        service.deletePatient(this.id);
+        service.delete(this.id);
 
         verify(repository, times(0)).save(any());
     }
@@ -122,7 +122,7 @@ class PatientServiceTest {
         p.setIsActive(Boolean.TRUE);
         when(repository.findById(any())).thenReturn(Optional.of(p));
 
-        service.deletePatient(this.id);
+        service.delete(this.id);
 
         verify(repository).save(any());
     }

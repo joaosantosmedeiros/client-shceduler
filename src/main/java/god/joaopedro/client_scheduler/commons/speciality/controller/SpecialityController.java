@@ -21,27 +21,27 @@ public class SpecialityController {
 
     @GetMapping
     public ResponseEntity<List<Speciality>> listSpecialities() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.list());
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Speciality> getById(@PathVariable UUID id) {
+    public ResponseEntity<Speciality> getSpeciality(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
     public ResponseEntity<Speciality> createSpeciality(@RequestBody @Valid SpecialityDTO dto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.createSpeciality(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Speciality> putById(@PathVariable UUID id, @RequestBody @Valid SpecialityDTO dto) {
-        return ResponseEntity.ok(service.updateSpeciality(id, dto));
+    public ResponseEntity<Speciality> updateSpeciality(@PathVariable UUID id, @RequestBody @Valid SpecialityDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteById(@PathVariable UUID id) {
-        service.deleteSpeciality(id);
+    public ResponseEntity<?> deleteSpeciality(@PathVariable UUID id) {
+        service.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }

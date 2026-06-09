@@ -18,7 +18,7 @@ public class SpecialityService {
 
     private final SpecialityRepository repository;
 
-    public List<Speciality> findAll() {
+    public List<Speciality> list() {
         return repository.findAll();
     }
 
@@ -26,7 +26,7 @@ public class SpecialityService {
         return repository.findById(id).orElse(null);
     }
 
-    public Speciality createSpeciality(SpecialityDTO dto) {
+    public Speciality create(SpecialityDTO dto) {
         if(dto == null)
             throw new IllegalArgumentException("especialidade não deve ser nula");
 
@@ -36,7 +36,7 @@ public class SpecialityService {
         return repository.save(new Speciality(dto));
     }
 
-    public Speciality updateSpeciality(UUID id, SpecialityDTO dto) {
+    public Speciality update(UUID id, SpecialityDTO dto) {
         if(dto == null)
             throw new IllegalArgumentException("especialidade não deve ser nula");
 
@@ -55,7 +55,7 @@ public class SpecialityService {
         return speciality;
     }
 
-    public void deleteSpeciality(UUID id) {
+    public void delete(UUID id) {
         Speciality speciality = repository.findById(id).orElseThrow(() ->
             new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
 

@@ -35,30 +35,30 @@ class SpecialityServiceTest {
     }
 
     @Test public void itShouldThrowIfDtoIsNullOnCreate() {
-        assertThrows(IllegalArgumentException.class, () -> service.createSpeciality(null));
+        assertThrows(IllegalArgumentException.class, () -> service.create(null));
     }
 
     @Test public void itShouldThrowIfNameIsAlreadyInUseOnCreate() {
         when(repository.findByName(dto.name())).thenReturn(Optional.of(new Speciality(dto)));
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.createSpeciality(dto));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.create(dto));
         assertTrue(e.getMessage().contains(Constants.IN_USE));
     }
 
     @Test public void itShouldNotThrowIfValidDtoIsPassedOnCreate() {
         when(repository.findByName(dto.name())).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> service.createSpeciality(dto));
+        assertDoesNotThrow(() -> service.create(dto));
     }
 
     @Test public void itShouldThrowIfDtoIsNullOnUpdate() {
-        assertThrows(IllegalArgumentException.class, () -> service.updateSpeciality(UUID.randomUUID(), null));
+        assertThrows(IllegalArgumentException.class, () -> service.update(UUID.randomUUID(), null));
     }
 
     @Test public void itShouldThrowIfSpecialityIsNotFound() {
         when(repository.findById(any())).thenReturn(Optional.empty());
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.updateSpeciality(UUID.randomUUID(), dto));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(UUID.randomUUID(), dto));
         assertTrue(e.getMessage().contains(Constants.INVALID_REFERENCE));
     }
 
@@ -66,14 +66,14 @@ class SpecialityServiceTest {
         when(repository.findByName(any())).thenReturn(Optional.of(makeSpeciality(UUID.randomUUID(), "name", Boolean.TRUE)));
         when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(UUID.randomUUID(), "another_name", Boolean.TRUE)));
 
-        Exception e = assertThrows(InvalidFieldException.class, () -> service.updateSpeciality(UUID.randomUUID(), dto));
+        Exception e = assertThrows(InvalidFieldException.class, () -> service.update(UUID.randomUUID(), dto));
         assertTrue(e.getMessage().contains(Constants.IN_USE));
     }
 
     @Test public void itShouldNotCallRepositoryIfNoChangesAreMade() {
         when(repository.findById(any())).thenReturn(Optional.of(new Speciality((dto))));
 
-        assertDoesNotThrow(() -> service.updateSpeciality(UUID.randomUUID(), dto));
+        assertDoesNotThrow(() -> service.update(UUID.randomUUID(), dto));
 
         verify(repository, times(0)).save(any());
     }
@@ -83,7 +83,7 @@ class SpecialityServiceTest {
         speciality.setName("another_name");
         when(repository.findById(any())).thenReturn(Optional.of(speciality));
 
-        assertDoesNotThrow(() -> service.updateSpeciality(UUID.randomUUID(), dto));
+        assertDoesNotThrow(() -> service.update(UUID.randomUUID(), dto));
 
         verify(repository, times(1)).save(any());
     }
@@ -91,14 +91,14 @@ class SpecialityServiceTest {
     @Test public void itShouldThrowIfNoSpecialityIsFoundOnDelete() {
         when(repository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidFieldException.class, () -> service.deleteSpeciality(UUID.randomUUID()));
+        assertThrows(InvalidFieldException.class, () -> service.delete(UUID.randomUUID()));
     }
 
     @Test public void itShouldNotCallSaveIfNoChangesAreMadeOnDelete() {
         UUID id = UUID.randomUUID();
         when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(id, "name", Boolean.FALSE)));
 
-        assertDoesNotThrow(() -> service.deleteSpeciality(id));
+        assertDoesNotThrow(() -> service.delete(id));
 
         verify(repository, times(0)).save(any());
 
@@ -108,7 +108,7 @@ class SpecialityServiceTest {
         UUID id = UUID.randomUUID();
         when(repository.findById(any())).thenReturn(Optional.of(makeSpeciality(id, "name", Boolean.TRUE)));
 
-        assertDoesNotThrow(() -> service.deleteSpeciality(id));
+        assertDoesNotThrow(() -> service.delete(id));
 
         verify(repository).save(any());
     }

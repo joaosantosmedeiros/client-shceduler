@@ -21,7 +21,7 @@ public class PatientService {
     private final PatientRepository repository;
 
     @Transactional
-    public Patient createPatient(PatientDTO dto) {
+    public Patient create(PatientDTO dto) {
         if(dto == null){
             throw new IllegalArgumentException("paciente não deve ser nulo");
         }
@@ -39,11 +39,11 @@ public class PatientService {
         return repository.findById(id).orElse(null);
     }
 
-    public List<Patient> listPatients() {
+    public List<Patient> list() {
         return repository.findAll();
     }
 
-    public Patient updatePatient(UUID id, PatientDTO dto) {
+    public Patient update(UUID id, PatientDTO dto) {
 
         if(id == null || dto == null){
             throw new IllegalArgumentException("Patient must not be null.");
@@ -68,7 +68,7 @@ public class PatientService {
         return repository.save(patient);
     }
 
-    public void deletePatient(UUID id) {
+    public void delete(UUID id) {
         Patient patient = repository.findById(id)
                 .orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
 
