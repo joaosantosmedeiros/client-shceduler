@@ -74,4 +74,15 @@ public class DoctorService {
 
         return repository.save(doctor);
     }
+
+    public void delete(UUID id) {
+        Doctor doctor = repository.findById(id)
+                .orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
+
+        if(doctor.getIsActive()){
+            doctor.setIsActive(Boolean.FALSE);
+            doctor.setUpdatedAt(LocalDateTime.now());
+            repository.save(doctor);
+        }
+    }
 }

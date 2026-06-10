@@ -50,7 +50,7 @@ public class Doctor {
     private String phone;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @Column(nullable = false)
     private Date birthDate;

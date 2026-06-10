@@ -38,4 +38,10 @@ public class DoctorController {
     public ResponseEntity<Doctor> updateDoctor(@PathVariable UUID id, @RequestBody @Valid DoctorDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteDoctor(@PathVariable UUID id) {
+        service.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
 }

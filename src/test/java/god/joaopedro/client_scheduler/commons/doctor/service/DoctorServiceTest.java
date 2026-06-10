@@ -17,7 +17,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DoctorServiceTest {
@@ -28,7 +28,7 @@ class DoctorServiceTest {
     @InjectMocks
     private DoctorService service;
 
-    private UUID id = UUID.randomUUID();
+    private  final UUID id = UUID.randomUUID();
     private String cpf = "70431492077";
     private String crm = "157/RJ";
 
@@ -119,6 +119,34 @@ class DoctorServiceTest {
 
             InvalidFieldException e = assertThrows(InvalidFieldException.class, () -> service.update(id, createDTO()));
             assertTrue(e.getMessage().contains(Constants.IN_USE) && e.getField().equals(Constants.CRM));
+        }
+    }
+
+    @Nested
+    class OnDelete{
+
+        @Test public void itShouldThrowIfPatientIsNotFound() {
+            assertThrows(InvalidFieldException.class, () -> service.delete(id));
+        }
+
+        @Test public void itShouldNotUpdateIfPatientIsAlreadyInactive() {
+            Doctor doctor = new Doctor();
+            doctor.setIsActive(Boolean.FALSE);
+            when(repository.findById(any())).thenReturn(Optional.of(doctor));
+
+            service.delete(id);
+
+            verify(repository, times(0)).save(any());
+        }
+
+        @Test public void itShouldUpdateIfPatientIsAlreadyInactive() {
+            Doctor doctor = new Doctor();
+            doctor.setIsActive(Boolean.TRUE);
+            when(repository.findById(any())).thenReturn(Optional.of(doctor));
+
+            service.delete(id);
+
+            verify(repository).save(any());
         }
     }
 }
