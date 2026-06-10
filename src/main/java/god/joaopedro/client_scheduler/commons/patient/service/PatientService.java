@@ -78,4 +78,15 @@ public class PatientService {
             repository.save(patient);
         }
     }
+
+    public void activate(UUID id) {
+        Patient patient = repository.findById(id)
+                .orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
+
+        if(!patient.getIsActive()){
+            patient.setIsActive(Boolean.TRUE);
+            patient.setUpdatedAt(LocalDateTime.now());
+            repository.save(patient);
+        }
+    }
 }

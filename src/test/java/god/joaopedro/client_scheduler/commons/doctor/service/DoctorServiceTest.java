@@ -149,4 +149,32 @@ class DoctorServiceTest {
             verify(repository).save(any());
         }
     }
+
+    @Nested
+    class OnActivate{
+
+        @Test public void itShouldThrowIfPatientIsNotFound() {
+            assertThrows(InvalidFieldException.class, () -> service.activate(id));
+        }
+
+        @Test public void itShouldNotUpdateIfDoctorIsAlreadyActive() {
+            Doctor doctor = new Doctor();
+            doctor.setIsActive(Boolean.TRUE);
+            when(repository.findById(any())).thenReturn(Optional.of(doctor));
+
+            service.activate(id);
+
+            verify(repository, times(0)).save(any());
+        }
+
+        @Test public void itShouldUpdateIfDoctorIsInactive() {
+            Doctor doctor = new Doctor();
+            doctor.setIsActive(Boolean.FALSE);
+            when(repository.findById(any())).thenReturn(Optional.of(doctor));
+
+            service.activate(id);
+
+            verify(repository).save(any());
+        }
+    }
 }

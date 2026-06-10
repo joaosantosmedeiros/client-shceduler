@@ -42,8 +42,15 @@ public class PatientController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deletePatient  (@PathVariable UUID id) {
+    public ResponseEntity<?> deletePatient (@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<Patient> activatePatient(@PathVariable UUID id) {
+        service.activate(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
 }

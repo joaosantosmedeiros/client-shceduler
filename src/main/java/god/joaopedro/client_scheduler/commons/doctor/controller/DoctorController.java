@@ -44,4 +44,10 @@ public class DoctorController {
         service.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<Doctor> activateDoctor(@PathVariable UUID id) {
+        service.activate(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
 }
