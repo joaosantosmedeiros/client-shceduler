@@ -1,13 +1,13 @@
 package god.joaopedro.client_scheduler.commons.doctor.controller;
 
 import god.joaopedro.client_scheduler.commons.doctor.model.Doctor;
+import god.joaopedro.client_scheduler.commons.doctor.model.dto.DoctorDTO;
 import god.joaopedro.client_scheduler.commons.doctor.service.DoctorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,5 +27,10 @@ public class DoctorController {
     @GetMapping("{id}")
     public ResponseEntity<Doctor> getDoctor(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<Doctor> createDoctor(@RequestBody @Valid DoctorDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 }

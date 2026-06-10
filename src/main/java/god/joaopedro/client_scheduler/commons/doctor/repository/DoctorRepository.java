@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
 
-    public Optional<Doctor> findByCpf(String cpf);
-    public Optional<Doctor> findByCrm(String crm);
+    Optional<Doctor> findByCpf(String cpf);
+    Optional<Doctor> findByCrm(String crm);
 }
