@@ -10,6 +10,7 @@ import god.joaopedro.client_scheduler.utils.CrmValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,5 +43,35 @@ public class DoctorService {
             throw new InvalidFieldException(Constants.CRM, Constants.IN_USE);
 
         return repository.save(new Doctor(dto));
+    }
+
+    public Doctor update(UUID id, DoctorDTO dto) {
+        if(id == null || dto == null)
+            throw new IllegalArgumentException("médico não deve ser nulo");
+
+        Doctor doctor = repository.findById(id)
+                .orElseThrow(() -> new InvalidFieldException(Constants.ID, Constants.INVALID_REFERENCE));
+
+        if(!doctor.getCpf().equals(dto.cpf())){
+            if(!CpfValidator.validate(dto.cpf()))
+                throw new InvalidFieldException(Constants.CPF, Constants.INVALID_OBJECT);
+            if(repository.findByCpf(dto.cpf()).isPresent())
+                throw new InvalidFieldException(Constants.CPF, Constants.IN_USE);
+        }
+        if(!doctor.getCrm().equals(dto.crm())){
+            if(!CrmValidator.validate(dto.crm()))
+                throw new InvalidFieldException(Constants.CRM, Constants.INVALID_OBJECT);
+            if(repository.findByCrm(dto.crm()).isPresent())
+                throw new InvalidFieldException(Constants.CRM, Constants.IN_USE);
+        }
+
+        doctor.setName(dto.name());
+        doctor.setBirthDate(dto.birthDate());
+        doctor.setCpf(dto.cpf());
+        doctor.setCrm(dto.crm());
+        doctor.setPhone(dto.phone());
+        doctor.setUpdatedAt(LocalDateTime.now());
+
+        return repository.save(doctor);
     }
 }

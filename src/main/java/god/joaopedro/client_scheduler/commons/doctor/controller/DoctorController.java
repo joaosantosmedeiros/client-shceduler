@@ -33,4 +33,9 @@ public class DoctorController {
     public ResponseEntity<Doctor> createDoctor(@RequestBody @Valid DoctorDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Doctor> updateDoctor(@PathVariable UUID id, @RequestBody @Valid DoctorDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
 }
